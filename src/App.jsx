@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react';
+import resumePDF from './assets/Gray_Resume_Nov25.pdf';
 
 function App() {
   const [scrolled, setScrolled] = useState(false);
+  const [darkMode, setDarkMode] = useState(false);
+  const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
@@ -9,12 +12,60 @@ function App() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Console Easter Egg
+  useEffect(() => {
+    console.log('%c👋 Hey there!', 'font-size: 20px; font-weight: bold; color: #e84a8a;');
+    console.log('%c Looking at the code? I like your style!', 'font-size: 14px; color: #2d2a32;');
+    console.log('%c Check out my work: https://github.com/chloegray2', 'font-size: 12px; color: #8b5fa8;');
+    console.log('%c Or just email me: cgray39@lsu.edu', 'font-size: 12px; color: #3a9a85;');
+  }, []);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // Command palette: Cmd+K or Ctrl+K
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setCommandPaletteOpen(prev => !prev);
+      }
+      // Dark mode toggle: Shift+D
+      if (e.shiftKey && e.key === 'D') {
+        setDarkMode(prev => !prev);
+      }
+      // Escape to close command palette
+      if (e.key === 'Escape' && commandPaletteOpen) {
+        setCommandPaletteOpen(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [commandPaletteOpen]);
+
   const scrollToSection = (sectionId) => {
     document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth' });
   };
 
   // Colors defined inline to avoid Tailwind config issues
-  const colors = {
+  const colors = darkMode ? {
+    // Dark mode colors
+    pink: '#ff6b9d',
+    pinkDark: '#e84a8a',
+    pinkLight: '#3d2530',
+    cream: '#0f0f0f',
+    charcoal: '#f5f5f5',
+    peach: '#3d2f28',
+    lavender: '#352d3d',
+    mint: '#2d3d38',
+    purple: '#b894d6',
+    orange: '#ff9466',
+    teal: '#5fd4b8',
+    // Additional dark mode specific colors
+    cardBg: '#1a1a1a',
+    sectionBg: '#121212',
+    sectionAltBg: '#0f0f0f',
+  } : {
+    // Light mode colors
     pink: '#e84a8a',
     pinkDark: '#c93d75',
     pinkLight: '#fdf2f6',
@@ -26,6 +77,10 @@ function App() {
     purple: '#8b5fa8',
     orange: '#e07849',
     teal: '#3a9a85',
+    // Light mode specific colors
+    cardBg: '#ffffff',
+    sectionBg: '#ffffff',
+    sectionAltBg: '#fdfbf9',
   };
 
   return (
@@ -51,6 +106,20 @@ function App() {
                   {item}
                 </button>
               ))}
+              <button
+                onClick={() => setDarkMode(!darkMode)}
+                className="text-sm opacity-70 hover:opacity-100 transition-opacity"
+                title="Toggle dark mode (Shift+D)"
+              >
+                {darkMode ? '☀️' : '🌙'}
+              </button>
+              <button
+                onClick={() => setCommandPaletteOpen(true)}
+                className="text-sm opacity-70 hover:opacity-100 transition-opacity font-mono"
+                title="Command palette (⌘K)"
+              >
+                ⌘K
+              </button>
             </div>
           </div>
         </div>
@@ -65,11 +134,11 @@ function App() {
         />
         <div 
           className="absolute bottom-24 left-[5%] w-96 h-96 rounded-full blur-3xl opacity-30"
-          style={{ backgroundColor: '#ffd4b8' }}
+          style={{ backgroundColor: darkMode ? '#5a3d28' : '#ffd4b8' }}
         />
         <div 
           className="absolute top-1/2 right-[25%] w-64 h-64 rounded-full blur-3xl opacity-25"
-          style={{ backgroundColor: '#e2d4f0' }}
+          style={{ backgroundColor: darkMode ? '#4a3d5a' : '#e2d4f0' }}
         />
         
         <div className="max-w-6xl mx-auto px-6 py-20 relative z-10">
@@ -112,8 +181,8 @@ function App() {
                   href="https://github.com/chloegray2"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-6 py-3 text-white rounded-full font-medium transition-all hover:opacity-80"
-                  style={{ backgroundColor: colors.charcoal }}
+                  className="px-6 py-3 rounded-full font-medium transition-all hover:opacity-80"
+                  style={{ backgroundColor: darkMode ? '#f5f5f5' : colors.charcoal, color: darkMode ? '#0f0f0f' : '#ffffff' }}
                 >
                   GitHub
                 </a>
@@ -128,6 +197,16 @@ function App() {
                 >
                   LinkedIn
                 </a>
+                <a
+                  href={resumePDF}
+                  download="Chloe_Gray_Resume.pdf"
+                  className="px-6 py-3 rounded-full font-medium transition-all border-2 hover:border-current"
+                  style={{ borderColor: `${colors.charcoal}30`, color: colors.charcoal }}
+                  onMouseEnter={(e) => { e.target.style.borderColor = colors.pink; e.target.style.color = colors.pink; }}
+                  onMouseLeave={(e) => { e.target.style.borderColor = `${colors.charcoal}30`; e.target.style.color = colors.charcoal; }}
+                >
+                  Download Resume
+                </a>
               </div>
             </div>
             
@@ -135,7 +214,7 @@ function App() {
             <div className="hidden lg:block relative">
               <div
                 className="w-72 h-72 rounded-[48px] rotate-6 shadow-2xl"
-                style={{ background: `linear-gradient(135deg, ${colors.pink}, #ffd4b8, #e2d4f0)` }}
+                style={{ background: `linear-gradient(135deg, ${colors.pink}, ${darkMode ? '#5a3d28' : '#ffd4b8'}, ${darkMode ? '#4a3d5a' : '#e2d4f0'})` }}
               />
               <div
                 className="absolute inset-3 rounded-[40px] -rotate-3 flex items-center justify-center shadow-inner"
@@ -149,7 +228,7 @@ function App() {
       </section>
 
       {/* About Section */}
-      <section id="about" className="py-24 bg-white relative">
+      <section id="about" className="py-24 relative" style={{ backgroundColor: colors.sectionBg }}>
         <div className="max-w-6xl mx-auto px-6">
           <div className="grid lg:grid-cols-2 gap-16">
             <div>
@@ -183,7 +262,7 @@ function App() {
               {/* Education card */}
               <div 
                 className="rounded-3xl p-8"
-                style={{ backgroundColor: colors.cream, border: `1px solid ${colors.charcoal}10` }}
+                style={{ backgroundColor: colors.cardBg, border: `1px solid ${colors.charcoal}10` }}
               >
                 <div className="flex items-start gap-4">
                   <div 
@@ -214,7 +293,7 @@ function App() {
                     style={{ backgroundColor: stat.bg }}
                   >
                     <p className="font-serif text-3xl" style={{ color: stat.color }}>{stat.value}</p>
-                    <p className="text-sm opacity-60 mt-1">{stat.label}</p>
+                    <p className="text-sm mt-1" style={{ color: darkMode ? '#f5f5f5' : undefined, opacity: darkMode ? 0.7 : 0.6 }}>{stat.label}</p>
                   </div>
                 ))}
               </div>
@@ -224,7 +303,7 @@ function App() {
       </section>
 
       {/* Experience Section */}
-      <section id="work" className="py-24" style={{ backgroundColor: colors.cream }}>
+      <section id="work" className="py-24" style={{ backgroundColor: colors.sectionAltBg }}>
         <div className="max-w-6xl mx-auto px-6">
           <span
             className="font-medium text-sm tracking-wider uppercase"
@@ -287,17 +366,20 @@ function App() {
                 ]
               }
             ].map((job, i) => (
-              <div 
-                key={i} 
-                className="bg-white rounded-3xl p-8 hover:shadow-lg transition-shadow"
-                style={{ borderLeft: `4px solid ${job.color}` }}
+              <div
+                key={i}
+                className="rounded-3xl p-8 hover:shadow-lg transition-shadow"
+                style={{
+                  backgroundColor: colors.cardBg,
+                  borderLeft: `4px solid ${job.color}`
+                }}
               >
                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-4">
                   <div>
                     <h3 className="font-serif text-xl">{job.title}</h3>
                     <p className="opacity-60">{job.company}</p>
                   </div>
-                  <span 
+                  <span
                     className="text-sm px-4 py-1.5 rounded-full whitespace-nowrap"
                     style={{ backgroundColor: job.bg, color: job.color }}
                   >
@@ -319,7 +401,7 @@ function App() {
       </section>
 
       {/* Projects Section */}
-      <section id="projects" className="py-24 bg-white">
+      <section id="projects" className="py-24" style={{ backgroundColor: colors.sectionBg }}>
         <div className="max-w-6xl mx-auto px-6">
           <span
             className="font-medium text-sm tracking-wider uppercase"
@@ -334,7 +416,8 @@ function App() {
           <div className="grid md:grid-cols-2 gap-8">
             {/* FiscalFocus - Featured */}
             <div
-              className="md:col-span-2 rounded-3xl overflow-hidden bg-white"
+              className="md:col-span-2 rounded-3xl overflow-hidden"
+              style={{ backgroundColor: colors.cardBg }}
             >
               <div className="grid md:grid-cols-[1fr,1.2fr] gap-0">
                 {/* Image side */}
@@ -363,15 +446,15 @@ function App() {
                       1st Place
                     </span>
                     <span
-                      className="px-3 py-1 text-white text-xs font-medium rounded-full"
-                      style={{ backgroundColor: colors.charcoal }}
+                      className="px-3 py-1 text-xs font-medium rounded-full"
+                      style={{ backgroundColor: darkMode ? '#f5f5f5' : colors.charcoal, color: darkMode ? '#0f0f0f' : '#ffffff' }}
                     >
                       Best Technical
                     </span>
                   </div>
-                  <h3 className="font-serif text-3xl mb-2">FiscalFocus</h3>
-                  <p className="opacity-60 mb-4">GeauxCash Hackathon · March 2025</p>
-                  <p className="opacity-70 leading-relaxed mb-6">
+                  <h3 className="font-serif text-3xl mb-2" style={{ color: darkMode ? '#f5f5f5' : colors.charcoal }}>FiscalFocus</h3>
+                  <p style={{ color: darkMode ? '#f5f5f5' : colors.charcoal, opacity: 0.6 }} className="mb-4">GeauxCash Hackathon · March 2025</p>
+                  <p style={{ color: darkMode ? '#f5f5f5' : colors.charcoal, opacity: 0.7 }} className="leading-relaxed mb-6">
                     Financial analysis platform with ML-powered stock prediction, risk assessment,
                     and goal tracking. Built in 48 hours, won first place out of 180+ participants.
                     Integrated SEC filings and real-time market data.
@@ -381,7 +464,7 @@ function App() {
                       <span
                         key={tag}
                         className="px-3 py-1.5 text-sm rounded-full"
-                        style={{ backgroundColor: 'rgba(255,255,255,0.6)', color: `${colors.charcoal}aa` }}
+                        style={{ backgroundColor: darkMode ? 'rgba(0,0,0,0.3)' : 'rgba(255,255,255,0.6)', color: darkMode ? '#f5f5f5' : `${colors.charcoal}aa` }}
                       >
                         {tag}
                       </span>
@@ -392,7 +475,7 @@ function App() {
             </div>
 
             {/* CarbonSight - Featured */}
-            <div className="md:col-span-2 rounded-3xl overflow-hidden bg-white">
+            <div className="md:col-span-2 rounded-3xl overflow-hidden" style={{ backgroundColor: colors.cardBg }}>
               <div className="grid md:grid-cols-[1.2fr,1fr] gap-0">
                 {/* Image side */}
                 <div className="relative h-80 md:h-auto">
@@ -411,7 +494,7 @@ function App() {
                 {/* Content side */}
                 <div
                   className="p-8 md:p-12 relative"
-                  style={{ background: `linear-gradient(135deg, ${colors.mint}, #b8e6d5)` }}
+                  style={{ background: `linear-gradient(135deg, ${colors.mint}, ${darkMode ? '#3d5a4d' : '#b8e6d5'})` }}
                 >
                   <div className="flex flex-wrap gap-2 mb-4">
                     <span
@@ -421,9 +504,9 @@ function App() {
                       Finalist
                     </span>
                   </div>
-                  <h3 className="font-serif text-3xl mb-2">CarbonSight</h3>
-                  <p className="opacity-60 mb-4">Nexus LA DevDays · Aug — Dec 2025</p>
-                  <p className="opacity-70 leading-relaxed mb-6">
+                  <h3 className="font-serif text-3xl mb-2" style={{ color: darkMode ? '#f5f5f5' : colors.charcoal }}>CarbonSight</h3>
+                  <p style={{ color: darkMode ? '#f5f5f5' : colors.charcoal, opacity: 0.6 }} className="mb-4">Nexus LA DevDays · Aug — Dec 2025</p>
+                  <p style={{ color: darkMode ? '#f5f5f5' : colors.charcoal, opacity: 0.7 }} className="leading-relaxed mb-6">
                     Environmental compliance dashboard integrating Climate TRACE satellite data.
                     Built 3 specialized portals (company, public, and regulator dashboards) with
                     an AI recommendation engine for sustainability initiatives. Advanced to competition
@@ -434,7 +517,7 @@ function App() {
                       <span
                         key={tag}
                         className="px-3 py-1.5 text-sm rounded-full"
-                        style={{ backgroundColor: 'rgba(255,255,255,0.6)', color: `${colors.charcoal}aa` }}
+                        style={{ backgroundColor: darkMode ? 'rgba(0,0,0,0.3)' : 'rgba(255,255,255,0.6)', color: darkMode ? '#f5f5f5' : `${colors.charcoal}aa` }}
                       >
                         {tag}
                       </span>
@@ -448,7 +531,7 @@ function App() {
       </section>
 
       {/* Skills Section */}
-      <section className="py-24" style={{ backgroundColor: colors.cream }}>
+      <section className="py-24" style={{ backgroundColor: colors.sectionAltBg }}>
         <div className="max-w-6xl mx-auto px-6">
           <span
             className="font-medium text-sm tracking-wider uppercase"
@@ -467,7 +550,7 @@ function App() {
               { title: 'ML & Data', items: ['TensorFlow', 'Pandas', 'NumPy', 'Jupyter', 'OpenAI API'], color: colors.teal },
               { title: 'Tools', items: ['Git', 'VS Code', 'Figma', 'Jira', 'PyCharm'], color: colors.orange },
             ].map((category, i) => (
-              <div key={i} className="bg-white rounded-3xl p-6">
+              <div key={i} className="rounded-3xl p-6" style={{ backgroundColor: colors.cardBg }}>
                 <h3 className="font-medium mb-4" style={{ color: category.color }}>
                   {category.title}
                 </h3>
@@ -483,7 +566,7 @@ function App() {
       </section>
 
       {/* Contact Section */}
-      <section id="contact" className="py-24 text-white relative overflow-hidden" style={{ backgroundColor: colors.charcoal }}>
+      <section id="contact" className="py-24 text-white relative overflow-hidden" style={{ backgroundColor: darkMode ? '#1a1a1a' : colors.charcoal }}>
         <div className="absolute inset-0 opacity-20">
           <div 
             className="absolute top-0 left-1/4 w-96 h-96 rounded-full blur-3xl"
@@ -491,7 +574,7 @@ function App() {
           />
           <div 
             className="absolute bottom-0 right-1/4 w-80 h-80 rounded-full blur-3xl"
-            style={{ backgroundColor: '#e2d4f0' }}
+            style={{ backgroundColor: darkMode ? '#4a3d5a' : '#e2d4f0' }}
           />
         </div>
         
@@ -548,7 +631,7 @@ function App() {
       </section>
 
       {/* Footer */}
-      <footer className="py-8 border-t border-white/10" style={{ backgroundColor: colors.charcoal }}>
+      <footer className="py-8 border-t border-white/10" style={{ backgroundColor: darkMode ? '#1a1a1a' : colors.charcoal }}>
         <div className="max-w-6xl mx-auto px-6">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-white/40">
             <p>Built with React & Tailwind</p>
@@ -556,6 +639,61 @@ function App() {
           </div>
         </div>
       </footer>
+
+      {/* Command Palette */}
+      {commandPaletteOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-start justify-center pt-32 px-4"
+          style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
+          onClick={() => setCommandPaletteOpen(false)}
+        >
+          <div
+            className="w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden"
+            style={{ backgroundColor: darkMode ? '#252525' : 'white' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="p-4 border-b" style={{ borderColor: darkMode ? '#404040' : `${colors.charcoal}20` }}>
+              <input
+                type="text"
+                placeholder="Type a command or search..."
+                className="w-full bg-transparent outline-none text-lg font-mono"
+                style={{ color: colors.charcoal }}
+                autoFocus
+              />
+            </div>
+            <div className="p-2">
+              {[
+                { icon: '🏠', label: 'Go to Home', action: () => { scrollToSection('home'); setCommandPaletteOpen(false); } },
+                { icon: '👤', label: 'Go to About', action: () => { scrollToSection('about'); setCommandPaletteOpen(false); } },
+                { icon: '💼', label: 'Go to Work', action: () => { scrollToSection('work'); setCommandPaletteOpen(false); } },
+                { icon: '🚀', label: 'Go to Projects', action: () => { scrollToSection('projects'); setCommandPaletteOpen(false); } },
+                { icon: '📧', label: 'Go to Contact', action: () => { scrollToSection('contact'); setCommandPaletteOpen(false); } },
+                { icon: darkMode ? '☀️' : '🌙', label: `Switch to ${darkMode ? 'Light' : 'Dark'} Mode`, action: () => { setDarkMode(!darkMode); setCommandPaletteOpen(false); }, shortcut: 'Shift+D' },
+                { icon: '📄', label: 'Download Resume', action: () => { window.open(resumePDF, '_blank'); setCommandPaletteOpen(false); } },
+                { icon: '🐙', label: 'Open GitHub', action: () => { window.open('https://github.com/chloegray2', '_blank'); setCommandPaletteOpen(false); } },
+                { icon: '💼', label: 'Open LinkedIn', action: () => { window.open('https://www.linkedin.com/in/chloegray-cs', '_blank'); setCommandPaletteOpen(false); } },
+                { icon: '✉️', label: 'Send Email', action: () => { window.location.href = 'mailto:cgray39@lsu.edu'; setCommandPaletteOpen(false); } },
+              ].map((cmd, i) => (
+                <button
+                  key={i}
+                  onClick={cmd.action}
+                  className="w-full flex items-center gap-3 p-3 rounded-lg hover:opacity-80 transition-all text-left"
+                  style={{ backgroundColor: darkMode ? '#2d2d2d' : colors.cream }}
+                >
+                  <span className="text-2xl">{cmd.icon}</span>
+                  <span className="flex-1" style={{ color: colors.charcoal }}>{cmd.label}</span>
+                  {cmd.shortcut && (
+                    <span className="text-xs opacity-50 font-mono">{cmd.shortcut}</span>
+                  )}
+                </button>
+              ))}
+            </div>
+            <div className="p-4 border-t text-xs opacity-50 font-mono" style={{ borderColor: darkMode ? '#404040' : `${colors.charcoal}20`, color: colors.charcoal }}>
+              <span>Press ESC to close</span>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
