@@ -5,6 +5,13 @@ function App() {
   const [scrolled, setScrolled] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
+  const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
+
+  const photos = [
+    { src: import.meta.env.BASE_URL + 'pic1.JPG', position: 'center 38%' },
+    { src: import.meta.env.BASE_URL + 'pic2.JPG', position: 'center 15%' },
+    { src: import.meta.env.BASE_URL + 'pic3.JPG', position: 'center 80%' }
+  ];
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
@@ -41,6 +48,15 @@ function App() {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [commandPaletteOpen]);
+
+  // Photo carousel rotation
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentPhotoIndex((prev) => (prev + 1) % photos.length);
+    }, 4000); // Change photo every 4 seconds
+
+    return () => clearInterval(interval);
+  }, [photos.length]);
 
   const scrollToSection = (sectionId) => {
     document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth' });
@@ -210,17 +226,59 @@ function App() {
               </div>
             </div>
             
-            {/* Avatar card */}
-            <div className="hidden lg:block relative">
+            {/* Avatar card with photo carousel */}
+            <div className="hidden lg:block relative group">
               <div
                 className="w-72 h-72 rounded-[48px] rotate-6 shadow-2xl"
                 style={{ background: `linear-gradient(135deg, ${colors.pink}, ${darkMode ? '#5a3d28' : '#ffd4b8'}, ${darkMode ? '#4a3d5a' : '#e2d4f0'})` }}
               />
               <div
-                className="absolute inset-3 rounded-[40px] -rotate-3 flex items-center justify-center shadow-inner"
+                className="absolute inset-3 rounded-[40px] -rotate-3 overflow-hidden shadow-inner"
                 style={{ backgroundColor: colors.cream }}
               >
-                <span className="font-serif text-7xl" style={{ color: colors.pink }}>CG</span>
+                {photos.map((photo, index) => (
+                  <img
+                    key={index}
+                    src={photo.src}
+                    alt={`Chloe Gray ${index + 1}`}
+                    className="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000"
+                    style={{
+                      opacity: index === currentPhotoIndex ? 1 : 0,
+                      pointerEvents: 'none',
+                      objectPosition: photo.position
+                    }}
+                  />
+                ))}
+
+                {/* Navigation arrows */}
+                <button
+                  onClick={() => setCurrentPhotoIndex((prev) => (prev - 1 + photos.length) % photos.length)}
+                  className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                  style={{ backgroundColor: `${colors.pink}dd` }}
+                >
+                  <span className="text-white font-bold">‹</span>
+                </button>
+                <button
+                  onClick={() => setCurrentPhotoIndex((prev) => (prev + 1) % photos.length)}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                  style={{ backgroundColor: `${colors.pink}dd` }}
+                >
+                  <span className="text-white font-bold">›</span>
+                </button>
+              </div>
+              {/* Photo indicators */}
+              <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+                {photos.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentPhotoIndex(index)}
+                    className="w-2 h-2 rounded-full transition-all"
+                    style={{
+                      backgroundColor: index === currentPhotoIndex ? colors.pink : `${colors.charcoal}30`,
+                      transform: index === currentPhotoIndex ? 'scale(1.2)' : 'scale(1)'
+                    }}
+                  />
+                ))}
               </div>
             </div>
           </div>
@@ -414,115 +472,192 @@ function App() {
           </h2>
           
           <div className="grid md:grid-cols-2 gap-8">
-            {/* FiscalFocus - Featured */}
+            {/* FiscalFocus */}
             <div
-              className="md:col-span-2 rounded-3xl overflow-hidden"
+              className="rounded-3xl overflow-hidden flex flex-col"
               style={{ backgroundColor: colors.cardBg }}
             >
-              <div className="grid md:grid-cols-[1fr,1.2fr] gap-0">
-                {/* Image side */}
-                <div className="relative h-64 md:h-auto">
-                  <img
-                    src={import.meta.env.BASE_URL + "hackathon1.jpeg"}
-                    alt="FiscalFocus Hackathon"
-                    className="w-full h-full object-cover"
-                  />
-                  <div
-                    className="absolute inset-0"
-                    style={{ background: `linear-gradient(to bottom, transparent 0%, ${colors.pink}15 100%)` }}
-                  />
-                </div>
-
-                {/* Content side */}
+              <div className="relative h-56">
+                <img
+                  src={import.meta.env.BASE_URL + "hackathon1.jpeg"}
+                  alt="FiscalFocus Hackathon"
+                  className="w-full h-full object-cover"
+                />
                 <div
-                  className="p-8 md:p-12 relative"
-                  style={{ background: `linear-gradient(135deg, ${colors.pinkLight}, ${colors.peach})` }}
-                >
-                  <div className="flex flex-wrap gap-2 mb-4">
+                  className="absolute inset-0"
+                  style={{ background: `linear-gradient(to bottom, transparent 0%, ${colors.pink}15 100%)` }}
+                />
+              </div>
+              <div
+                className="p-7 flex-1"
+                style={{ background: `linear-gradient(135deg, ${colors.pinkLight}, ${colors.peach})` }}
+              >
+                <div className="flex flex-wrap gap-2 mb-3">
+                  <span
+                    className="px-3 py-1 text-white text-xs font-medium rounded-full"
+                    style={{ backgroundColor: colors.pink }}
+                  >
+                    1st Place
+                  </span>
+                  <span
+                    className="px-3 py-1 text-xs font-medium rounded-full"
+                    style={{ backgroundColor: darkMode ? '#f5f5f5' : colors.charcoal, color: darkMode ? '#0f0f0f' : '#ffffff' }}
+                  >
+                    Best Technical
+                  </span>
+                </div>
+                <h3 className="font-serif text-2xl mb-2" style={{ color: darkMode ? '#f5f5f5' : colors.charcoal }}>FiscalFocus</h3>
+                <p style={{ color: darkMode ? '#f5f5f5' : colors.charcoal, opacity: 0.6 }} className="mb-3">GeauxCash Hackathon · March 2025</p>
+                <p style={{ color: darkMode ? '#f5f5f5' : colors.charcoal, opacity: 0.7 }} className="leading-relaxed mb-5">
+                  Financial analysis platform with ML-powered stock prediction, risk assessment,
+                  and goal tracking. Built in 48 hours, won first place out of 180+ participants.
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {['Python', 'React', 'ML', 'SEC Data', 'REST APIs'].map(tag => (
                     <span
-                      className="px-3 py-1 text-white text-xs font-medium rounded-full"
-                      style={{ backgroundColor: colors.pink }}
+                      key={tag}
+                      className="px-3 py-1 text-sm rounded-full"
+                      style={{ backgroundColor: darkMode ? 'rgba(0,0,0,0.3)' : 'rgba(255,255,255,0.6)', color: darkMode ? '#f5f5f5' : `${colors.charcoal}aa` }}
                     >
-                      1st Place
+                      {tag}
                     </span>
-                    <span
-                      className="px-3 py-1 text-xs font-medium rounded-full"
-                      style={{ backgroundColor: darkMode ? '#f5f5f5' : colors.charcoal, color: darkMode ? '#0f0f0f' : '#ffffff' }}
-                    >
-                      Best Technical
-                    </span>
-                  </div>
-                  <h3 className="font-serif text-3xl mb-2" style={{ color: darkMode ? '#f5f5f5' : colors.charcoal }}>FiscalFocus</h3>
-                  <p style={{ color: darkMode ? '#f5f5f5' : colors.charcoal, opacity: 0.6 }} className="mb-4">GeauxCash Hackathon · March 2025</p>
-                  <p style={{ color: darkMode ? '#f5f5f5' : colors.charcoal, opacity: 0.7 }} className="leading-relaxed mb-6">
-                    Financial analysis platform with ML-powered stock prediction, risk assessment,
-                    and goal tracking. Built in 48 hours, won first place out of 180+ participants.
-                    Integrated SEC filings and real-time market data.
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {['Python', 'React', 'ML', 'SEC Data', 'REST APIs'].map(tag => (
-                      <span
-                        key={tag}
-                        className="px-3 py-1.5 text-sm rounded-full"
-                        style={{ backgroundColor: darkMode ? 'rgba(0,0,0,0.3)' : 'rgba(255,255,255,0.6)', color: darkMode ? '#f5f5f5' : `${colors.charcoal}aa` }}
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
+                  ))}
                 </div>
               </div>
             </div>
 
-            {/* CarbonSight - Featured */}
-            <div className="md:col-span-2 rounded-3xl overflow-hidden" style={{ backgroundColor: colors.cardBg }}>
-              <div className="grid md:grid-cols-[1.2fr,1fr] gap-0">
-                {/* Image side */}
-                <div className="relative h-80 md:h-auto">
-                  <img
-                    src={import.meta.env.BASE_URL + "nexus1.jpeg"}
-                    alt="CarbonSight Project"
-                    className="w-full h-full object-cover"
-                    style={{ objectPosition: 'center 22%' }}
-                  />
-                  <div
-                    className="absolute inset-0"
-                    style={{ background: `linear-gradient(to bottom, transparent 0%, ${colors.mint}30 100%)` }}
-                  />
-                </div>
-
-                {/* Content side */}
+            {/* CarbonSight */}
+            <div className="rounded-3xl overflow-hidden" style={{ backgroundColor: colors.cardBg }}>
+              <div className="relative h-56">
+                <img
+                  src={import.meta.env.BASE_URL + "nexus1.jpeg"}
+                  alt="CarbonSight Project"
+                  className="w-full h-full object-cover"
+                  style={{ objectPosition: 'center 22%' }}
+                />
                 <div
-                  className="p-8 md:p-12 relative"
-                  style={{ background: `linear-gradient(135deg, ${colors.mint}, ${darkMode ? '#3d5a4d' : '#b8e6d5'})` }}
-                >
-                  <div className="flex flex-wrap gap-2 mb-4">
+                  className="absolute inset-0"
+                  style={{ background: `linear-gradient(to bottom, transparent 0%, ${colors.mint}30 100%)` }}
+                />
+              </div>
+              <div
+                className="p-7"
+                style={{ background: `linear-gradient(135deg, ${colors.mint}, ${darkMode ? '#3d5a4d' : '#b8e6d5'})` }}
+              >
+                <div className="flex flex-wrap gap-2 mb-3">
+                  <span
+                    className="px-3 py-1 text-white text-xs font-medium rounded-full"
+                    style={{ backgroundColor: colors.teal }}
+                  >
+                    Finalist
+                  </span>
+                </div>
+                <h3 className="font-serif text-2xl mb-2" style={{ color: darkMode ? '#f5f5f5' : colors.charcoal }}>CarbonSight</h3>
+                <p style={{ color: darkMode ? '#f5f5f5' : colors.charcoal, opacity: 0.6 }} className="mb-3">Nexus LA DevDays · Aug — Dec 2025</p>
+                <p style={{ color: darkMode ? '#f5f5f5' : colors.charcoal, opacity: 0.7 }} className="leading-relaxed mb-5">
+                  Environmental compliance dashboard integrating Climate TRACE satellite data.
+                  Built 3 specialized portals with an AI recommendation engine for sustainability initiatives.
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {['Climate Data', 'Multi-Portal Dashboard', 'AI Recommendations', 'Compliance Tracking'].map(tag => (
                     <span
-                      className="px-3 py-1 text-white text-xs font-medium rounded-full"
-                      style={{ backgroundColor: colors.teal }}
+                      key={tag}
+                      className="px-3 py-1 text-sm rounded-full"
+                      style={{ backgroundColor: darkMode ? 'rgba(0,0,0,0.3)' : 'rgba(255,255,255,0.6)', color: darkMode ? '#f5f5f5' : `${colors.charcoal}aa` }}
                     >
-                      Finalist
+                      {tag}
                     </span>
-                  </div>
-                  <h3 className="font-serif text-3xl mb-2" style={{ color: darkMode ? '#f5f5f5' : colors.charcoal }}>CarbonSight</h3>
-                  <p style={{ color: darkMode ? '#f5f5f5' : colors.charcoal, opacity: 0.6 }} className="mb-4">Nexus LA DevDays · Aug — Dec 2025</p>
-                  <p style={{ color: darkMode ? '#f5f5f5' : colors.charcoal, opacity: 0.7 }} className="leading-relaxed mb-6">
-                    Environmental compliance dashboard integrating Climate TRACE satellite data.
-                    Built 3 specialized portals (company, public, and regulator dashboards) with
-                    an AI recommendation engine for sustainability initiatives. Advanced to competition
-                    finals with live demo and compliance monitoring system.
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {['Climate Data', 'Multi-Portal Dashboard', 'AI Recommendations', 'Compliance Tracking'].map(tag => (
-                      <span
-                        key={tag}
-                        className="px-3 py-1.5 text-sm rounded-full"
-                        style={{ backgroundColor: darkMode ? 'rgba(0,0,0,0.3)' : 'rgba(255,255,255,0.6)', color: darkMode ? '#f5f5f5' : `${colors.charcoal}aa` }}
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Entergy CareerBuilder */}
+            <div className="rounded-3xl overflow-hidden flex flex-col" style={{ backgroundColor: colors.cardBg }}>
+              <div className="relative h-56">
+                <img
+                  src={import.meta.env.BASE_URL + "entergy.png"}
+                  alt="Entergy CareerBuilder Project"
+                  className="w-full h-full object-cover"
+                />
+                <div
+                  className="absolute inset-0"
+                  style={{ background: `linear-gradient(to bottom, transparent 0%, ${colors.pink}15 100%)` }}
+                />
+              </div>
+              <div
+                className="p-7 flex-1"
+                style={{ background: `linear-gradient(135deg, ${colors.pinkLight}, ${colors.peach})` }}
+              >
+                <div className="flex flex-wrap gap-2 mb-3">
+                  <span
+                    className="px-3 py-1 text-white text-xs font-medium rounded-full"
+                    style={{ backgroundColor: colors.pink }}
+                  >
+                    Client Project
+                  </span>
+                </div>
+                <h3 className="font-serif text-2xl mb-2" style={{ color: darkMode ? '#f5f5f5' : colors.charcoal }}>Entergy CareerBuilder</h3>
+                <p style={{ color: darkMode ? '#f5f5f5' : colors.charcoal, opacity: 0.6 }} className="mb-3">Entergy × LSU · Aug — Dec 2025</p>
+                <p style={{ color: darkMode ? '#f5f5f5' : colors.charcoal, opacity: 0.7 }} className="leading-relaxed mb-5">
+                  Full-stack HR analytics platform analyzing 3,000+ job descriptions using NLP and clustering algorithms. 
+                  Built AI career roadmap system leveraging 10+ years of employee data.
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {['PostgreSQL', 'Python', 'React', 'NLP', 'DBSCAN', 'TF-IDF'].map(tag => (
+                    <span
+                      key={tag}
+                      className="px-3 py-1 text-sm rounded-full"
+                      style={{ backgroundColor: darkMode ? 'rgba(0,0,0,0.3)' : 'rgba(255,255,255,0.6)', color: darkMode ? '#f5f5f5' : `${colors.charcoal}aa` }}
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* TigerAI Bootcamp */}
+            <div className="rounded-3xl overflow-hidden" style={{ backgroundColor: colors.cardBg }}>
+              <div className="relative h-56">
+                <img
+                  src={import.meta.env.BASE_URL + "tigerAI.png"}
+                  alt="TigerAI Bootcamp"
+                  className="w-full h-full object-cover"
+                />
+                <div
+                  className="absolute inset-0"
+                  style={{ background: `linear-gradient(to bottom, transparent 0%, ${colors.mint}30 100%)` }}
+                />
+              </div>
+              <div
+                className="p-7"
+                style={{ background: `linear-gradient(135deg, ${colors.mint}, ${darkMode ? '#3d5a4d' : '#b8e6d5'})` }}
+              >
+                <div className="flex flex-wrap gap-2 mb-3">
+                  <span
+                    className="px-3 py-1 text-white text-xs font-medium rounded-full"
+                    style={{ backgroundColor: colors.teal }}
+                  >
+                    Bootcamp
+                  </span>
+                </div>
+                <h3 className="font-serif text-2xl mb-2" style={{ color: darkMode ? '#f5f5f5' : colors.charcoal }}>TigerAI Bootcamp</h3>
+                <p style={{ color: darkMode ? '#f5f5f5' : colors.charcoal, opacity: 0.6 }} className="mb-3">LSU · Summer 2025</p>
+                <p style={{ color: darkMode ? '#f5f5f5' : colors.charcoal, opacity: 0.7 }} className="leading-relaxed mb-5">
+                  Intensive AI/ML bootcamp covering deep learning, neural networks, and practical applications.
+                  Built end-to-end machine learning projects from data preprocessing to model deployment.
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {['TensorFlow', 'PyTorch', 'Deep Learning', 'Neural Networks', 'Python'].map(tag => (
+                    <span
+                      key={tag}
+                      className="px-3 py-1 text-sm rounded-full"
+                      style={{ backgroundColor: darkMode ? 'rgba(0,0,0,0.3)' : 'rgba(255,255,255,0.6)', color: darkMode ? '#f5f5f5' : `${colors.charcoal}aa` }}
+                    >
+                      {tag}
+                    </span>
+                  ))}
                 </div>
               </div>
             </div>
