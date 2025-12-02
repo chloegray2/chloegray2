@@ -533,7 +533,7 @@ function App() {
                   src={import.meta.env.BASE_URL + "nexus1.jpeg"}
                   alt="CarbonSight Project"
                   className="w-full h-full object-cover"
-                  style={{ objectPosition: 'center 22%' }}
+                  style={{ objectPosition: 'center 17%' }}
                 />
                 <div
                   className="absolute inset-0"
@@ -624,6 +624,7 @@ function App() {
                   src={import.meta.env.BASE_URL + "tigerAI.png"}
                   alt="TigerAI Bootcamp"
                   className="w-full h-full object-cover"
+                  style={{ objectPosition: 'center 55%' }}
                 />
                 <div
                   className="absolute inset-0"
